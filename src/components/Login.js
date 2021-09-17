@@ -2,63 +2,115 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useHistory } from "react-router";
 
+
+const initialState = {
+  username: '',
+  password: ''
+}
+
 const Login = () => {
   // make a post request to retrieve a token from the api
   // when you have handled the token, navigate to the BubblePage route
-  const history = useHistory();
 
-  const signIn = () => {
-    axios.post("http://localhost:5000/api/login", {username, password})
-      .then(res => {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("username", res.data.username)
-        history.push('/bubble-page')
-      })
-      .catch(err => {
-        console.log(err)
-        setError(err.error)
-      })
+  const [credentials, setCredentials] = useState(initialState)
+  const history = useHistory();
+  const [error, setError] = useState(null);
+
+
+  const handleError = () => {
+    if(credentials.username !== 'Lambda' || credentials.password !== 'School'){
+      setError('Invalid username or password')
+    } else {
+      setError(null);
+    }
   }
+
+  const handleChange = (e) => {
+    setCredentials({
+      ...credentials,
+      [e.target.name]: e.target.value
+    })
+    console.log(credentials)
+  }
+
+  // const signIn = () => {
+  //   axios.post("http://localhost:5000/api/login", { username, password })
+  //     .then(res => {
+  //       localStorage.setItem("token", res.data.token);
+  //       localStorage.setItem("username", res.data.username)
+  //       history.push('/bubble')
+  //     })
+  //     .catch(err => {
+  //       console.log(err)
+  //       setError(err.error)
+  //     })
+  // }
 
   const handleSubmit = e => {
-
     e.preventDefault();
-    signIn();
+    axios.post('http://localhost:5000/api/login', credentials)
+    .then(res => {
+      console.log(res)
+      localStorage.setItem('token', res.data.payload)
+      history.push('/bubble')
+    })
+    .catch(err => console.log(err))
   }
 
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
 
-  const [error, setError] = useState(null);
-  //replace with error state
+  // const [password, setPassword] = useState("");
+  // const [username, setUsername] = useState("");
+
+
 
   return (
     <div>
       <h1>Welcome to the Bubble App!</h1>
       <div data-testid="loginForm" className="login-form">
+      <form onSubmit={handleSubmit}>
         <h2>Login Here</h2>
 
-        <input
+        {/* <input
           type="text"
           name="username"
           value={username}
           id="username"
           onChange={e => setUsername (e.target.value)}
-        />
+        /> */}
 
-        <input
+        <label>
+          UserName:
+          <input onChange={handleChange} 
+          id='username' 
+          name='username' 
+          type='text' 
+          value={credentials.username}>
+          </input>
+        </label>
+
+        <label>
+            Password:
+            <input onChange={handleChange} 
+            id='password' 
+            name='password' 
+            type= 'password' 
+            value={credentials.password}>
+            </input>
+          </label>
+
+        {/* <input
           type="password"
           name="password"
           value={password}
           id="password"
-          onChange={e => setPassword (e.target.value)}
-        />
+          onChange={e => setPassword(e.target.value)}
+        /> */}
 
-        <button id="submit" onClick={handleSubmit}>Log in</button>
+        <button id="submit" onClick={handleError}>Log in</button>
 
-
+        </form>
       </div>
-      {error != null && <p id="error" className="error">{error}</p>}
+       <p id="error" className="error">{error}</p>
 
     </div>
   );

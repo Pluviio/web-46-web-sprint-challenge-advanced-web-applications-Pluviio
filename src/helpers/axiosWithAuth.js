@@ -19,14 +19,19 @@
 import axios from "axios";
 
 const axiosWithAuth = () => {
+    
     const token = localStorage.getItem('token')
+    console.log(token)
     return axios.create({
         headers:{
-            authorization: token
-        },
-        baseURL: 'http://localhost:5000/api'
+            Authorization: token
+        }
+    
     })
 }
+axios.defaults.headers.post['Content-Type'] = 'application/json';
+axios.defaults.withCredentials = true;
+axios.defaults.crossDomain = true;
 
 export default axiosWithAuth;
 
